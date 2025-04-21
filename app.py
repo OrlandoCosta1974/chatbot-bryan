@@ -8,6 +8,8 @@ load_dotenv()
 
 # Pega a chave da OpenRouter
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+print("CHAVE CARREGADA:", repr(OPENROUTER_API_KEY))
+
 
 app = Flask(__name__)
 
