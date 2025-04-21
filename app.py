@@ -7,7 +7,9 @@ import requests
 load_dotenv()
 
 # Pega e limpa a chave da OpenRouter\OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_API_KEY = OPENROUTER_API_KEY.strip()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+print("CHAVE CARREGADA:", repr(OPENROUTER_API_KEY))
+
 
 # Debug: exibe no log se está sendo lida corretamente
 print("CHAVE CARREGADA:", repr(OPENROUTER_API_KEY))
