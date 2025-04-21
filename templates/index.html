@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatBot - Ciência da Computação</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-2xl bg-white shadow-xl rounded-xl p-6">
+    <h1 class="text-2xl font-bold mb-4 text-center text-blue-700">🤖 ChatBot - Meu Assistente de Computação</h1>
+    <div id="chat-box" class="h-96 overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4 space-y-4 bg-gray-50"></div>
+    <div class="flex gap-2">
+      <input type="text" id="user-input" placeholder="Digite sua pergunta..." class="flex-1 border border-gray-300 rounded-lg p-2" />
+      <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    function formatResponse(text) {
+  // Converte blocos de código ``` para <pre>
+  text = text.replace(/```(.*?)```/gs, '<pre class="bg-gray-900 text-white p-2 rounded mt-2 mb-2 overflow-x-auto"><code>$1</code></pre>');
+  
+  // Converte quebra de linha em <br>
+  return text.replace(/\n/g, '<br>');
+}
+
+    const chatBox = document.getElementById('chat-box');
+
+    function appendMessage(sender, text, isBot = false) {
+      const msg = document.createElement('div');
+      msg.className = `flex ${isBot ? 'justify-start' : 'justify-end'}`;
+      msg.innerHTML = `
+        <div class="max-w-[80%] px-4 py-2 rounded-xl text-sm ${isBot ? 'bg-blue-100 text-gray-900' : 'bg-blue-600 text-white'}">
+          <strong>${sender}:</strong> ${text}
+        </div>`;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage('Você', message, false);
+      input.value = '';
+
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      appendMessage('Bot', formatResponse(data.reply), true);
+
+    }
+  </script>
+</body>
+</html>
