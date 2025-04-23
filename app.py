@@ -3,28 +3,28 @@ import os
 from dotenv import load_dotenv
 import requests
 
-# Carrega variáveis de ambiente locais
+# Carrega variáveis de ambiente locais (para dev)
 load_dotenv()
 
-# Define a aplicação Flask
+# Inicializa o Flask
 app = Flask(__name__)
 
-# Rota principal
+# Página principal
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Rota de comunicação com o OpenRouter
+# Rota do chatbot
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json['message']
 
-    # PEGA A CHAVE DE DENTRO DA FUNÇÃO
+    # Chave de API carregada dentro da função (essencial no Render)
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
     print("🔐 CHAVE CARREGADA (dentro da função):", repr(OPENROUTER_API_KEY))
 
     if not OPENROUTER_API_KEY:
-        return jsonify({'reply': "❌ ERRO: A chave da API não foi carregada. Verifique as variáveis de ambiente."})
+        return jsonify({'reply': "❌ ERRO: A chave da API não foi carregada."})
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -34,7 +34,7 @@ def chat():
     }
 
     data = {
-        "model": "mistralai/mistral-7b-instruct:free",
+        "model": "openai/gpt-3.5-turbo",
         "messages": [
             {
                 "role": "system",
@@ -72,6 +72,6 @@ Se a pergunta estiver confusa ou incompleta, peça educadamente por mais detalhe
     except Exception as e:
         return jsonify({'reply': f"❌ ERRO inesperado: {str(e)}"})
 
-# Inicializa o servidor local
+# Executa localmente
 if __name__ == '__main__':
     app.run(debug=True)
