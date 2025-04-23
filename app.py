@@ -25,6 +25,8 @@ def home():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json['message']
+    # GARANTE que a chave é lida corretamente em produção
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
