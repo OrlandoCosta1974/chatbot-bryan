@@ -1,36 +1,34 @@
 from flask import Flask, request, render_template, jsonify
 import os
-from dotenv import load_dotenv
 import requests
+from dotenv import load_dotenv
 
-# Carrega variáveis locais, se houver
+# Carrega variáveis locais (.env) – útil em desenvolvimento
 load_dotenv()
 
 app = Flask(__name__)
 
-# Rota principal (interface)
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Rota da API para receber e responder mensagens
 @app.route('/chat', methods=['POST'])
 def chat():
-    # Lê e exibe a chave da OpenRouter
-    chave = os.getenv("OPENROUTER_API_KEY", "VAZIA").strip()
-    print("🧪 CHAVE EM PRODUÇÃO (Render):", repr(chave))  # <== DEBUG
+    # Plano B: tenta pegar da env do Render ou do .env
+    chave = os.environ.get("OPENROUTER_API_KEY", "VAZIA").strip()
+    print("🧪 CHAVE CARREGADA (Render ou .env):", repr(chave))
 
-    user_input = request.json['message']
+    user_input = request.json.get("message", "")
 
     headers = {
         "Authorization": f"Bearer {chave}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://chatbot-bryan.onrender.com",  # URL pública
+        "HTTP-Referer": "https://chatbot-bryan.onrender.com",
         "X-Title": "MeuChatBot"
     }
 
     data = {
-        "model": "openai/gpt-3.5-turbo",  # modelo seguro e liberado
+        "model": "openai/gpt-3.5-turbo",  # modelo compatível
         "messages": [
             {
                 "role": "system",
@@ -60,13 +58,12 @@ Se a pergunta estiver confusa ou incompleta, peça educadamente por mais detalhe
     try:
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
         response.raise_for_status()
-        reply = response.json()['choices'][0]['message']['content']
-        return jsonify({'reply': reply})
+        reply = response.json()["choices"][0]["message"]["content"]
+        return jsonify({"reply": reply})
     except requests.exceptions.HTTPError as e:
-        return jsonify({'reply': f"❌ HTTP ERROR: {str(e)}\n\n{response.text}"})
+        return jsonify({"reply": f"❌ HTTP ERROR: {str(e)}\n\n{response.text}"})
     except Exception as e:
-        return jsonify({'reply': f"❌ ERRO inesperado: {str(e)}"})
+        return jsonify({"reply": f"❌ ERRO inesperado: {str(e)}"})
 
-# Inicia o servidor Flask localmente
 if __name__ == '__main__':
     app.run(debug=True)
