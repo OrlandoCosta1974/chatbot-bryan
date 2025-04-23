@@ -34,7 +34,7 @@ def chat():
     }
 
     data = {
-        "model": "mistralai/mistral-7b-instruct",
+        "model": "mistralai/mistral-7b-instruct:free",
         "messages": [
             {"role": "system", "content": """Você é um assistente virtual chamado Bryan, especialista em Ciência da Computação e Programação. Sua missão é ajudar usuários de todos os níveis — iniciantes, intermediários e avançados — a entender conceitos da computação com clareza e precisão.
 
