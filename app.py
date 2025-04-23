@@ -3,16 +3,12 @@ import os
 from dotenv import load_dotenv
 import requests
 
-# Carrega variáveis do .env
+# Carrega variáveis do .env localmente
 load_dotenv()
 
-# Pega e limpa a chave da OpenRouter\OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# Debug inicial (útil apenas no desenvolvimento local)
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
-print("CHAVE CARREGADA:", repr(OPENROUTER_API_KEY))
-
-
-# Debug: exibe no log se está sendo lida corretamente
-print("CHAVE CARREGADA:", repr(OPENROUTER_API_KEY))
+print("CHAVE CARREGADA (fora da função):", repr(OPENROUTER_API_KEY))
 
 app = Flask(__name__)
 
@@ -25,8 +21,10 @@ def home():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json['message']
-    # GARANTE que a chave é lida corretamente em produção
+
+    # 🔥 Carrega a chave dentro da função — isso é essencial no Render
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+    print("CHAVE CARREGADA (dentro da função):", repr(OPENROUTER_API_KEY))
 
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -70,6 +68,6 @@ Se a pergunta estiver confusa ou incompleta, peça educadamente por mais detalhe
     except Exception as e:
         return jsonify({'reply': f"Erro inesperado: {str(e)}"})
 
-# Inicia o servidor Flask
+# Inicia o servidor Flask localmente
 if __name__ == '__main__':
     app.run(debug=True)
