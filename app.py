@@ -17,6 +17,8 @@ def home():
 # Rota do chatbot
 @app.route('/chat', methods=['POST'])
 def chat():
+    chave = os.getenv("OPENROUTER_API_KEY", "VAZIA").strip()
+    print("🧪 CHAVE EM PRODUÇÃO (Render):", repr(chave))
     user_input = request.json['message']
 
     # Chave de API carregada dentro da função (essencial no Render)
