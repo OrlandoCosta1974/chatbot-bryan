@@ -3,40 +3,34 @@ import os
 from dotenv import load_dotenv
 import requests
 
-# Carrega variáveis de ambiente locais (para dev)
+# Carrega variáveis locais, se houver
 load_dotenv()
 
-# Inicializa o Flask
 app = Flask(__name__)
 
-# Página principal
+# Rota principal (interface)
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Rota do chatbot
+# Rota da API para receber e responder mensagens
 @app.route('/chat', methods=['POST'])
 def chat():
+    # Lê e exibe a chave da OpenRouter
     chave = os.getenv("OPENROUTER_API_KEY", "VAZIA").strip()
-    print("🧪 CHAVE EM PRODUÇÃO (Render):", repr(chave))
+    print("🧪 CHAVE EM PRODUÇÃO (Render):", repr(chave))  # <== DEBUG
+
     user_input = request.json['message']
 
-    # Chave de API carregada dentro da função (essencial no Render)
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
-    print("🔐 CHAVE CARREGADA (dentro da função):", repr(OPENROUTER_API_KEY))
-
-    if not OPENROUTER_API_KEY:
-        return jsonify({'reply': "❌ ERRO: A chave da API não foi carregada."})
-
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {chave}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://chatbot-bryan.onrender.com",
+        "HTTP-Referer": "https://chatbot-bryan.onrender.com",  # URL pública
         "X-Title": "MeuChatBot"
     }
 
     data = {
-        "model": "openai/gpt-3.5-turbo",
+        "model": "openai/gpt-3.5-turbo",  # modelo seguro e liberado
         "messages": [
             {
                 "role": "system",
@@ -65,7 +59,6 @@ Se a pergunta estiver confusa ou incompleta, peça educadamente por mais detalhe
 
     try:
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-        print("🧠 RESPOSTA DA API:", response.text)
         response.raise_for_status()
         reply = response.json()['choices'][0]['message']['content']
         return jsonify({'reply': reply})
@@ -74,6 +67,6 @@ Se a pergunta estiver confusa ou incompleta, peça educadamente por mais detalhe
     except Exception as e:
         return jsonify({'reply': f"❌ ERRO inesperado: {str(e)}"})
 
-# Executa localmente
+# Inicia o servidor Flask localmente
 if __name__ == '__main__':
     app.run(debug=True)
